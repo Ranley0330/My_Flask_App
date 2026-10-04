@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert to Uppercase</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include '_navigation.html' %}
+    <div class="container">
+        <div class="card">
+            <h1>Convert String to Uppercase</h1>
+
+            <form action="{{ url_for('uppercase') }}" method="post">
+                <label for="inputString">Enter a string:</label>
+                <input type="text" id="inputString" name="inputString" placeholder="Type here...">
+                <input type="submit" value="Convert">
+            </form>
+
+            {% if result is not none %}
+            <p class="result">Converted string: {{ result }}</p>
+            {% endif %}
+            <p><a href="{{ url_for('works') }}">Back to Works</a></p>
+        </div>
+    </div>
+</body>
+</html>

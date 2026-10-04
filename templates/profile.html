@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include '_navigation.html' %}
+    <div class="container">
+        <div class="card">
+            <h1>RANLEY N. TIMBOL</h1>
+        <div style="text-align: center;">
+            <img src="{{ url_for('static', filename='images/profile.png') }}"
+                 alt="Profile Image"
+                 style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin: 20px auto;">
+        </div>
+            <p><strong>Age:</strong> 19</p>
+            <p><strong>Section:</strong> BSCpE 2-3</p>
+            <p><strong>Course:</strong> Bachelor of Science in Computer Engineering</p>
+            <o><strong>School:</strong> Polytechnic University of the Philippines - Sta. Mesa</o>
+        </div>
+            
+
+        <div class="back-container">
+                <a href="/" class="back-button">Back</a>
+            </div>
+    </div>
+</body>
+</html>

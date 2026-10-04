@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include '_navigation.html' %}
+    <div class="container">
+        <div class="card">
+            <h1>WORKS</h1>
+
+            <h2>Welcome to my programming works</h2>
+
+            <ul class="link-list">
+                <li><a href="{{ url_for('uppercase') }}">Uppercase</a></li>
+                <li><a href="{{ url_for('circle') }}">Area of a Circle</a></li>
+                <li><a href="{{ url_for('triangle') }}">Area of a Triangle</a></li>
+                <li><a href="{{ url_for('linkedlist') }}">Linked List</a></li>
+            </ul>
+            <div class="back-container">
+                <a href="/" class="back-button">Back</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

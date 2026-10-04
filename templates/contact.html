@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Contact</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	{% include '_navigation.html' %}
+	<div class="container">
+		<main class="card">
+			<h1>Contact</h1>
+
+			<ul class="contact-links">
+				<li><a href="https://www.facebook.com/ranley.timbol" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+				<li><a href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=ranleytimbol30@gmail.com" target="_blank" rel="noopener noreferrer">Email</a></li>
+				<li><a href="https://www.linkedin.com/in/ranley-timbol-0969b7440" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+				<li><a href="https://github.com/Ranley0330" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+			</ul>
+
+			<div class="back-container">
+				<a href="{{ url_for('index') }}" class="back-button">Back</a>
+			</div>
+		</main>
+	</div>
+</body>
+</html>

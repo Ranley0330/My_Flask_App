@@ -1,0 +1,11 @@
+<header class="site-header">
+    <nav class="site-nav" aria-label="Main navigation">
+        <a class="site-brand" href="{{ url_for('index') }}">RANLEY N. TIMBOL</a>
+        <ul class="site-nav-links">
+            <li><a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}aria-current="page"{% endif %}>Home</a></li>
+            <li><a href="{{ url_for('profile') }}" {% if request.endpoint == 'profile' %}aria-current="page"{% endif %}>Profile</a></li>
+            <li><a href="{{ url_for('works') }}" {% if request.endpoint in ('works', 'uppercase', 'circle', 'triangle', 'linkedlist') %}aria-current="page"{% endif %}>Works</a></li>
+            <li><a href="{{ url_for('contact') }}" {% if request.endpoint == 'contact' %}aria-current="page"{% endif %}>Contact</a></li>
+        </ul>
+    </nav>
+</header>

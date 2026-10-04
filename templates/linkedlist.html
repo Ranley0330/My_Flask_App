@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Linked List</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+	{% include '_navigation.html' %}
+	<main class="container">
+		<section class="card linked-list-app">
+			<h1>Singly Linked List</h1>
+			<p class="linked-list-description">Use the controls to insert, search, and remove nodes using the methods from the Python linked-list lab.</p>
+
+			<div class="linked-list-controls">
+				<label for="nodeValue">Node value</label>
+				<div class="linked-list-input-row">
+					<input type="text" id="nodeValue" maxlength="24" placeholder="Enter a value" autocomplete="off">
+					<button type="button" class="list-button list-button-front" data-action="insert_at_beginning">Insert at beginning</button>
+					<button type="button" class="list-button list-button-add" data-action="insert_at_end">Insert at end</button>
+				</div>
+				<label for="targetValue">Insert after this value</label>
+				<div class="linked-list-input-row">
+					<input type="text" id="targetValue" maxlength="24" placeholder="Existing node value" autocomplete="off">
+					<button type="button" class="list-button list-button-insert-after" data-action="insert_after">Insert after</button>
+				</div>
+				<div class="linked-list-actions">
+					<button type="button" class="list-button list-button-find" data-action="search">Search</button>
+					<button type="button" class="list-button list-button-remove" data-action="remove_beginning">Remove first</button>
+					<button type="button" class="list-button list-button-remove" data-action="remove_at_end">Remove last</button>
+					<button type="button" class="list-button list-button-remove-value" data-action="remove_at">Remove value</button>
+					<button type="button" class="list-button list-button-clear" data-action="clear">Clear list</button>
+				</div>
+			</div>
+
+			<div class="linked-list-summary">
+				<h2>List structure</h2>
+				<span id="nodeCount" class="node-count" aria-live="polite">3 nodes</span>
+			</div>
+			<div class="linked-list-stage" aria-label="Linked list visualization">
+				<p id="emptyState" class="linked-list-empty" hidden>The list is empty. Add a value to create the first node.</p>
+				<ol id="nodeList" class="node-list" aria-label="Nodes in the linked list"></ol>
+			</div>
+			<p id="listStatus" class="linked-list-status" role="status" aria-live="polite">Sample list loaded: 10, 20, 30.</p>
+		</section>
+	</main>
+
+	<script>
+		let values = ["10", "20", "30"];
+		const valueInput = document.getElementById('nodeValue');
+		const targetInput = document.getElementById('targetValue');
+		const nodeList = document.getElementById('nodeList');
+		const nodeCount = document.getElementById('nodeCount');
+		const emptyState = document.getElementById('emptyState');
+		const listStatus = document.getElementById('listStatus');
+
+		function renderList(highlightIndex = null) {
+			nodeList.replaceChildren();
+			emptyState.hidden = values.length !== 0;
+			nodeCount.textContent = `${values.length} ${values.length === 1 ? 'node' : 'nodes'}`;
+
+			values.forEach((value, index) => {
+				const item = document.createElement('li');
+				item.className = 'node-item';
+
+				const card = document.createElement('div');
+				card.className = `node-card${index === highlightIndex ? ' is-found' : ''}`;
+
+				const title = document.createElement('span');
+				title.className = 'node-title';
+				title.textContent = `NODE ${index + 1}`;
+
+				const data = document.createElement('span');
+				data.className = 'node-data';
+				data.textContent = value;
+
+				const pointer = document.createElement('span');
+				pointer.className = 'node-pointer';
+				pointer.textContent = index < values.length - 1 ? 'NEXT' : 'NEXT: NULL';
+
+				card.append(title, data, pointer);
+				item.append(card);
+
+				if (index < values.length - 1) {
+					const arrow = document.createElement('span');
+					arrow.className = 'node-arrow';
+					arrow.setAttribute('aria-hidden', 'true');
+					arrow.textContent = '→';
+					item.append(arrow);
+				}
+
+				nodeList.append(item);
+			});
+		}
+
+		function getInputValue(input) {
+			const value = input.value.trim();
+			if (!value) {
+				listStatus.textContent = 'Enter a value first.';
+				input.focus();
+				return null;
+			}
+			return value;
+		}
+
+		async function performAction(action) {
+			const needsValue = ['insert_at_beginning', 'insert_at_end', 'search', 'remove_at'].includes(action);
+			const value = needsValue ? getInputValue(valueInput) : valueInput.value.trim();
+			if (needsValue && value === null) return;
+
+			const target = action === 'insert_after' ? getInputValue(targetInput) : null;
+			if (action === 'insert_after' && target === null) return;
+
+			const buttons = document.querySelectorAll('.linked-list-app button');
+			buttons.forEach(button => button.disabled = true);
+			listStatus.textContent = 'Updating the linked list...';
+
+			try {
+				const response = await fetch("{{ url_for('linkedlist_action') }}", {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({action, values, value, target})
+				});
+				const result = await response.json();
+				if (!response.ok) throw new Error(result.error || 'Could not update the list.');
+
+				values = result.values;
+				renderList(result.found_index);
+				listStatus.textContent = result.message;
+				if (action.startsWith('insert_')) valueInput.value = '';
+				if (action === 'insert_after') targetInput.value = '';
+			} catch (error) {
+				listStatus.textContent = error.message;
+			} finally {
+				buttons.forEach(button => button.disabled = false);
+			}
+		}
+
+		document.querySelectorAll('[data-action]').forEach(button => {
+			button.addEventListener('click', () => performAction(button.dataset.action));
+		});
+
+		valueInput.addEventListener('keydown', event => {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				performAction('insert_at_end');
+			}
+		});
+
+		targetInput.addEventListener('keydown', event => {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				performAction('insert_after');
+			}
+		});
+
+		renderList();
+	</script>
+</body>
+</html>
