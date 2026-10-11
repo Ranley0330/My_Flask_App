@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infix to Postfix</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include '_navigation.html' %}
+    <main class="container">
+        <section class="card linked-list-app converter-app">
+            <h1>Infix to Postfix</h1>
+            <p class="linked-list-description">Convert arithmetic expressions using a linked Stack for operators.</p>
+
+            <div class="converter-controls">
+                <label for="infixExpression">Infix expression</label>
+                <div class="linked-list-input-row">
+                    <input type="text" id="infixExpression" maxlength="200" placeholder="(A + B) * C" autocomplete="off">
+                    <button type="button" id="convertButton" class="list-button list-button-add">Convert</button>
+                    <button type="button" id="clearButton" class="list-button list-button-clear">Clear</button>
+                </div>
+            </div>
+
+            <p id="converterStatus" class="linked-list-status" role="status" aria-live="polite">Enter an expression to convert.</p>
+
+            <section id="conversionResult" class="conversion-result" hidden>
+                <h2>Postfix expression</h2>
+                <output id="postfixOutput" class="postfix-output"></output>
+
+                <h2>Conversion steps</h2>
+                <div class="conversion-table-wrap">
+                    <table class="conversion-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Token</th>
+                                <th scope="col">Action</th>
+                                <th scope="col">Operator stack (top first)</th>
+                                <th scope="col">Postfix output</th>
+                            </tr>
+                        </thead>
+                        <tbody id="conversionSteps"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="back-container">
+                <a href="{{ url_for('works') }}" class="back-button">Back to Works</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const expressionInput = document.getElementById('infixExpression');
+        const convertButton = document.getElementById('convertButton');
+        const clearButton = document.getElementById('clearButton');
+        const converterStatus = document.getElementById('converterStatus');
+        const conversionResult = document.getElementById('conversionResult');
+        const postfixOutput = document.getElementById('postfixOutput');
+        const conversionSteps = document.getElementById('conversionSteps');
+
+        function addCell(row, text) {
+            const cell = document.createElement('td');
+            cell.textContent = text;
+            row.append(cell);
+        }
+
+        function renderSteps(steps) {
+            conversionSteps.replaceChildren();
+            steps.forEach(step => {
+                const row = document.createElement('tr');
+                addCell(row, step.token);
+                addCell(row, step.action);
+                addCell(row, step.operators.join('  ') || '(empty)');
+                addCell(row, step.output || '(empty)');
+                conversionSteps.append(row);
+            });
+        }
+
+        async function convertExpression() {
+            const expression = expressionInput.value.trim();
+            if (!expression) {
+                converterStatus.textContent = 'Enter an expression first.';
+                expressionInput.focus();
+                return;
+            }
+
+            convertButton.disabled = true;
+            converterStatus.textContent = 'Converting expression...';
+            try {
+                const response = await fetch("{{ url_for('stack_convert') }}", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({expression})
+                });
+                const result = await response.json();
+                if (!response.ok) throw new Error(result.error || 'Could not convert the expression.');
+
+                postfixOutput.textContent = result.postfix;
+                renderSteps(result.steps);
+                conversionResult.hidden = false;
+                converterStatus.textContent = 'Conversion complete.';
+            } catch (error) {
+                conversionResult.hidden = true;
+                converterStatus.textContent = error.message;
+            } finally {
+                convertButton.disabled = false;
+            }
+        }
+
+        convertButton.addEventListener('click', convertExpression);
+        clearButton.addEventListener('click', () => {
+            expressionInput.value = '';
+            conversionResult.hidden = true;
+            conversionSteps.replaceChildren();
+            converterStatus.textContent = 'Enter an expression to convert.';
+            expressionInput.focus();
+        });
+
+        expressionInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                convertExpression();
+            }
+        });
+    </script>
+</body>
+</html>

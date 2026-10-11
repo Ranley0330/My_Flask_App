@@ -254,6 +254,10 @@ input[type="submit"]:hover {
     background: #be123c;
 }
 
+.link-list li:nth-child(5) a {
+    background: #db2777;
+}
+
 .link-list a:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(31, 41, 55, 0.2);
@@ -496,6 +500,94 @@ input[type="submit"]:hover {
     border-radius: 8px;
     color: var(--list-muted);
     text-align: center;
+}
+
+.stack-stage {
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.stack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.stack-item {
+    display: flex;
+    min-height: 56px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 16px;
+    border: 2px solid #087f5b;
+    border-radius: 8px;
+    background: #14c874;
+    color: #1f2937;
+    font-weight: 700;
+}
+
+.stack-item span:last-child {
+    overflow-wrap: anywhere;
+}
+
+.stack-top-marker {
+    color: #087f5b;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.converter-controls {
+    margin-top: 28px;
+}
+
+.conversion-result {
+    margin-top: 32px;
+}
+
+.conversion-result h2 {
+    margin: 24px 0 12px;
+    color: var(--list-ink);
+    font-size: 1.2rem;
+}
+
+.postfix-output {
+    display: block;
+    min-height: 52px;
+    padding: 14px 16px;
+    border-left: 4px solid #087f5b;
+    background: #ecfdf5;
+    color: #065f46;
+    font-size: 1.1rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+.conversion-table-wrap {
+    overflow-x: auto;
+}
+
+.conversion-table {
+    width: 100%;
+    min-width: 620px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.conversion-table th,
+.conversion-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #d8dee5;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.conversion-table th {
+    background: #f1f5f9;
+    color: #1f2937;
 }
 
 .linked-list-status {
