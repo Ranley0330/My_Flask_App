@@ -2,6 +2,7 @@ from math import isfinite, pi
 
 from flask import Flask, jsonify, render_template, request
 from linked_list import LinkedList
+from stack import infix_to_postfix
 
 app = Flask(__name__)
 
@@ -20,6 +21,10 @@ def works():
 @app.route('/linkedlist')
 def linkedlist():
     return render_template('linkedlist.html')
+
+@app.route('/stack')
+def stack():
+    return render_template('stack.html')
 
 @app.route('/linkedlist/action', methods=['POST'])
 def linkedlist_action():
@@ -92,6 +97,23 @@ def linkedlist_action():
         current_node = current_node.next
 
     return jsonify(values=updated_values, message=message, found_index=found_index)
+
+@app.route('/stack/convert', methods=['POST'])
+def stack_convert():
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify(error='Invalid request.'), 400
+
+    expression = payload.get('expression')
+    if not isinstance(expression, str) or len(expression) > 256:
+        return jsonify(error='Enter an expression no longer than 256 characters.'), 400
+
+    try:
+        postfix, steps = infix_to_postfix(expression)
+    except ValueError as error:
+        return jsonify(error=str(error)), 400
+
+    return jsonify(postfix=postfix, steps=steps)
 
 @app.route('/uppercase', methods=['GET', 'POST'])
 def uppercase():
