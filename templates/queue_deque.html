@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue and Deque</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include '_navigation.html' %}
+    <main class="container">
+        <section class="card linked-list-app">
+            <h1>Queue and Deque</h1>
+            <p class="linked-list-description">Try enqueue and dequeue operations on a queue, or insert and remove values at either end of a deque.</p>
+
+            <section id="queue" class="queue-deque-section" aria-labelledby="queueTitle">
+                <h2 id="queueTitle">Queue (FIFO)</h2>
+                <label for="queueValue">Value</label>
+                <div class="linked-list-input-row">
+                    <input type="text" id="queueValue" maxlength="24" placeholder="Enter a value" autocomplete="off">
+                    <button type="button" class="list-button list-button-queue-action" data-structure="queue" data-action="enqueue">Enqueue (push)</button>
+                    <button type="button" class="list-button list-button-remove" data-structure="queue" data-action="dequeue">Dequeue (pop)</button>
+                    <button type="button" class="list-button list-button-clear" data-structure="queue" data-action="clear">Clear queue</button>
+                </div>
+                <div class="queue-deque-ends" aria-hidden="true"><span>FRONT</span><span>REAR</span></div>
+                <ol id="queueValues" class="queue-deque-values" aria-label="Queue values from front to rear"></ol>
+                <p id="queueStatus" class="queue-deque-status" role="status" aria-live="polite">Queue is empty.</p>
+            </section>
+
+            <section id="deque" class="queue-deque-section" aria-labelledby="dequeTitle">
+                <h2 id="dequeTitle">Deque (double-ended queue)</h2>
+                <label for="dequeValue">Value</label>
+                <div class="linked-list-input-row">
+                    <input type="text" id="dequeValue" maxlength="24" placeholder="Enter a value" autocomplete="off">
+                    <button type="button" class="list-button list-button-queue-action" data-structure="deque" data-action="insert_front">Insert front</button>
+                    <button type="button" class="list-button list-button-add" data-structure="deque" data-action="insert_rear">Insert rear</button>
+                </div>
+                <div class="linked-list-actions">
+                    <button type="button" class="list-button list-button-remove" data-structure="deque" data-action="remove_front">Remove front</button>
+                    <button type="button" class="list-button list-button-remove-value" data-structure="deque" data-action="remove_rear">Remove rear</button>
+                    <button type="button" class="list-button list-button-clear" data-structure="deque" data-action="clear">Clear deque</button>
+                </div>
+                <div class="queue-deque-ends" aria-hidden="true"><span>FRONT</span><span>REAR</span></div>
+                <ol id="dequeValues" class="queue-deque-values" aria-label="Deque values from front to rear"></ol>
+                <p id="dequeStatus" class="queue-deque-status" role="status" aria-live="polite">Deque is empty.</p>
+            </section>
+
+            <div class="back-container">
+                <a href="{{ url_for('works') }}" class="back-button">Back to Works</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const structures = {
+            queue: [],
+            deque: []
+        };
+
+        function renderStructure(name) {
+            const valuesElement = document.getElementById(`${name}Values`);
+            valuesElement.replaceChildren();
+            structures[name].forEach(value => {
+                const item = document.createElement('li');
+                item.textContent = value;
+                valuesElement.append(item);
+            });
+        }
+
+        function performAction(name, action) {
+            const values = structures[name];
+            const status = document.getElementById(`${name}Status`);
+            const input = document.getElementById(`${name}Value`);
+            const inserts = ['enqueue', 'insert_front', 'insert_rear'];
+
+            if (inserts.includes(action)) {
+                const value = input.value.trim();
+                if (!value) {
+                    status.textContent = 'Enter a value first.';
+                    input.focus();
+                    return;
+                }
+                if (values.length >= 50) {
+                    status.textContent = 'The structure can contain at most 50 values.';
+                    return;
+                }
+
+                if (action === 'enqueue' || action === 'insert_rear') {
+                    values.push(value);
+                    status.textContent = `Inserted ${value} at the rear.`;
+                } else {
+                    values.unshift(value);
+                    status.textContent = `Inserted ${value} at the front.`;
+                }
+                input.value = '';
+            } else if (action === 'dequeue' || action === 'remove_front') {
+                const removed = values.shift();
+                status.textContent = removed === undefined
+                    ? `The ${name} is already empty.`
+                    : `Removed ${removed} from the front.`;
+            } else if (action === 'remove_rear') {
+                const removed = values.pop();
+                status.textContent = removed === undefined
+                    ? 'The deque is already empty.'
+                    : `Removed ${removed} from the rear.`;
+            } else if (action === 'clear') {
+                values.length = 0;
+                status.textContent = `The ${name} is empty.`;
+            }
+
+            renderStructure(name);
+        }
+
+        document.querySelectorAll('[data-structure][data-action]').forEach(button => {
+            button.addEventListener('click', () => {
+                performAction(button.dataset.structure, button.dataset.action);
+            });
+        });
+
+        document.getElementById('queueValue').addEventListener('keydown', event => {
+            if (event.key === 'Enter') performAction('queue', 'enqueue');
+        });
+        document.getElementById('dequeValue').addEventListener('keydown', event => {
+            if (event.key === 'Enter') performAction('deque', 'insert_rear');
+        });
+    </script>
+</body>
+</html>

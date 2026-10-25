@@ -258,6 +258,14 @@ input[type="submit"]:hover {
     background: #db2777;
 }
 
+.link-list li:nth-child(6) a {
+    background: #6d28d9;
+}
+
+.queue-work-link {
+    color: white;
+}
+
 .link-list a:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(31, 41, 55, 0.2);
@@ -409,6 +417,62 @@ input[type="submit"]:hover {
 
 .list-button-clear {
     background: #475569;
+}
+
+.list-button-queue-action {
+    background: #6d28d9;
+}
+
+.queue-deque-section {
+    margin-top: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #d8dee5;
+}
+
+.queue-deque-section h2 {
+    color: var(--list-ink);
+}
+
+.queue-deque-values {
+    display: flex;
+    min-height: 82px;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    margin: 18px 0 0;
+    padding: 12px;
+    border: 1px dashed #94a3b8;
+    border-radius: 10px;
+    list-style: none;
+}
+
+.queue-deque-values:empty::after {
+    color: #64748b;
+    content: "Empty";
+    font-style: italic;
+}
+
+.queue-deque-values li {
+    flex: 0 0 auto;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #ede9fe;
+    color: #4c1d95;
+    font-weight: 700;
+}
+
+.queue-deque-ends {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.queue-deque-status {
+    min-height: 1.5em;
+    color: var(--list-ink);
 }
 
 .linked-list-summary {

@@ -26,6 +26,10 @@ def linkedlist():
 def stack():
     return render_template('stack.html')
 
+@app.route('/queue-deque')
+def queue_deque():
+    return render_template('queue_deque.html')
+
 @app.route('/linkedlist/action', methods=['POST'])
 def linkedlist_action():
     payload = request.get_json(silent=True)
