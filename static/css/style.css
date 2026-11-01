@@ -262,6 +262,11 @@ input[type="submit"]:hover {
     background: #6d28d9;
 }
 
+.link-list li:nth-child(7) a {
+    background: #f9a8d4;
+    color: #4a1630;
+}
+
 .queue-work-link {
     color: white;
 }
@@ -336,6 +341,118 @@ input[type="submit"]:hover {
     margin: 0 auto;
     color: var(--list-muted);
     text-align: center;
+}
+
+.sorter-controls {
+    display: grid;
+    gap: 18px;
+    margin-top: 28px;
+}
+
+.sorter-controls label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.sorter-input,
+.sorter-select {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    font: inherit;
+}
+
+.sorter-actions,
+.sorter-step-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sorter-visualization {
+    margin-top: 30px;
+}
+
+.sorter-visualization h2 {
+    margin: 0 0 12px;
+    color: var(--list-ink);
+    font-size: 1.2rem;
+}
+
+.sorter-chart {
+    display: flex;
+    min-height: 240px;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 20px 12px 12px;
+    border: 1px solid #d8dee5;
+    border-radius: 10px;
+    background: #f8fafc;
+}
+
+.sorter-bar {
+    display: flex;
+    min-width: 24px;
+    max-width: 64px;
+    flex: 1 1 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    color: #1d2935;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.sorter-bar-fill {
+    width: 100%;
+    min-height: 8px;
+    border-radius: 6px 6px 0 0;
+    background: #2563eb;
+    transition: height 0.2s ease, background 0.2s ease;
+}
+
+.sorter-bar.is-active .sorter-bar-fill {
+    background: #f59e0b;
+}
+
+.sorter-bar-value {
+    overflow-wrap: anywhere;
+    text-align: center;
+}
+
+.sorter-step-controls {
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 16px;
+}
+
+.sorter-step-count {
+    margin: 0;
+    color: var(--list-muted);
+    font-weight: 700;
+}
+
+.sorter-status {
+    min-height: 48px;
+    margin: 16px 0 0;
+    padding: 14px 16px;
+    border-left: 4px solid var(--list-green);
+    background: #ecfdf5;
+    color: #065f46;
+    font-weight: 600;
+}
+
+.sorter-help {
+    margin: 8px 0 0;
+    color: var(--list-muted);
+    font-size: 0.9rem;
 }
 
 .linked-list-controls {

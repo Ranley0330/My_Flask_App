@@ -30,6 +30,10 @@ def stack():
 def queue_deque():
     return render_template('queue_deque.html')
 
+@app.route('/sorter')
+def sorter():
+    return render_template('sorter.html')
+
 @app.route('/linkedlist/action', methods=['POST'])
 def linkedlist_action():
     payload = request.get_json(silent=True)

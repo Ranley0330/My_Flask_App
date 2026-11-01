@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorter Visualizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    {% include '_navigation.html' %}
+    <main class="container">
+        <section class="card linked-list-app sorter-app">
+            <h1>Sorter</h1>
+            <p class="linked-list-description">Choose a sorting algorithm, enter numbers, and step through how the values move.</p>
+
+            <div class="sorter-controls">
+                <div>
+                    <label for="sorterAlgorithm">Sorting algorithm</label>
+                    <select class="sorter-select" id="sorterAlgorithm">
+                        <option value="bubble">Bubble sort</option>
+                        <option value="selection">Selection sort</option>
+                        <option value="insertion">Insertion sort</option>
+                        <option value="merge">Merge sort</option>
+                        <option value="quick">Quick sort</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="sorterNumbers">Numbers</label>
+                    <input class="sorter-input" id="sorterNumbers" type="text" maxlength="300" value="8, 3, 5, 1, 9, 2" placeholder="For example: 8, 3, 5, 1, 9, 2" autocomplete="off">
+                    <p class="sorter-help">Enter 2 to 30 finite numbers, separated by commas or spaces.</p>
+                </div>
+                <div class="sorter-actions">
+                    <button class="list-button list-button-add" id="sorterRun" type="button">Visualize sort</button>
+                    <button class="list-button list-button-clear" id="sorterReset" type="button">Reset</button>
+                </div>
+            </div>
+
+            <section class="sorter-visualization" aria-labelledby="sorterChartTitle">
+                <h2 id="sorterChartTitle">Array visualizer</h2>
+                <div class="sorter-chart" id="sorterChart" role="list" aria-label="Numbers represented as bars"></div>
+            </section>
+
+            <div class="sorter-step-controls">
+                <div class="sorter-actions">
+                    <button class="list-button list-button-front" id="sorterPrevious" type="button" disabled>Previous</button>
+                    <button class="list-button list-button-front" id="sorterNext" type="button" disabled>Next</button>
+                    <button class="list-button list-button-add" id="sorterAutoPlay" type="button" disabled>Auto Play</button>
+                </div>
+                <p class="sorter-step-count" id="sorterStepCount" aria-live="polite">Step 0 of 0</p>
+            </div>
+            <p class="sorter-status" id="sorterStatus" role="status" aria-live="polite">The example numbers are ready. Choose an algorithm and select Visualize sort.</p>
+
+            <div class="back-container">
+                <a href="{{ url_for('works') }}" class="back-button">Back to Works</a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const algorithmInput = document.getElementById('sorterAlgorithm');
+        const numbersInput = document.getElementById('sorterNumbers');
+        const chart = document.getElementById('sorterChart');
+        const runButton = document.getElementById('sorterRun');
+        const resetButton = document.getElementById('sorterReset');
+        const previousButton = document.getElementById('sorterPrevious');
+        const nextButton = document.getElementById('sorterNext');
+        const autoPlayButton = document.getElementById('sorterAutoPlay');
+        const stepCount = document.getElementById('sorterStepCount');
+        const status = document.getElementById('sorterStatus');
+        const exampleNumbers = '8, 3, 5, 1, 9, 2';
+        let steps = [];
+        let currentStep = -1;
+        let autoPlayTimer = null;
+
+        function parseNumbers() {
+            const input = numbersInput.value.trim();
+            if (!input) throw new Error('Enter some numbers first.');
+
+            const tokens = input.split(/[\s,]+/);
+            if (tokens.length < 2 || tokens.length > 30) {
+                throw new Error('Enter between 2 and 30 numbers.');
+            }
+
+            const values = tokens.map(Number);
+            if (values.some(value => !Number.isFinite(value))) {
+                throw new Error('Use only finite numbers separated by commas or spaces.');
+            }
+            return values;
+        }
+
+        function addStep(values, indices, message) {
+            steps.push({values: values.slice(), indices: [...indices], message});
+        }
+
+        function bubbleSort(values) {
+            for (let end = values.length - 1; end > 0; end -= 1) {
+                let swapped = false;
+                for (let index = 0; index < end; index += 1) {
+                    addStep(values, [index, index + 1], `Compare ${values[index]} and ${values[index + 1]}.`);
+                    if (values[index] > values[index + 1]) {
+                        [values[index], values[index + 1]] = [values[index + 1], values[index]];
+                        swapped = true;
+                        addStep(values, [index, index + 1], `Swap them: ${values[index]} and ${values[index + 1]}.`);
+                    }
+                }
+                if (!swapped) break;
+            }
+        }
+
+        function selectionSort(values) {
+            for (let start = 0; start < values.length - 1; start += 1) {
+                let minimum = start;
+                for (let index = start + 1; index < values.length; index += 1) {
+                    addStep(values, [minimum, index], `Compare current minimum ${values[minimum]} with ${values[index]}.`);
+                    if (values[index] < values[minimum]) minimum = index;
+                }
+                if (minimum !== start) {
+                    [values[start], values[minimum]] = [values[minimum], values[start]];
+                    addStep(values, [start, minimum], `Place ${values[start]} at position ${start + 1}.`);
+                }
+            }
+        }
+
+        function insertionSort(values) {
+            for (let index = 1; index < values.length; index += 1) {
+                const current = values[index];
+                let position = index - 1;
+                while (position >= 0) {
+                    addStep(values, [position, position + 1], `Compare ${values[position]} with ${current}.`);
+                    if (values[position] <= current) break;
+                    values[position + 1] = values[position];
+                    addStep(values, [position, position + 1], `Move ${values[position]} one position to the right.`);
+                    position -= 1;
+                }
+                values[position + 1] = current;
+                addStep(values, [position + 1], `Insert ${current} into its sorted position.`);
+            }
+        }
+
+        function mergeSort(values) {
+            function splitAndMerge(start, end) {
+                if (end - start < 2) return;
+                const middle = Math.floor((start + end) / 2);
+                splitAndMerge(start, middle);
+                splitAndMerge(middle, end);
+
+                const left = values.slice(start, middle);
+                const right = values.slice(middle, end);
+                let leftIndex = 0;
+                let rightIndex = 0;
+                let position = start;
+
+                while (leftIndex < left.length && rightIndex < right.length) {
+                    const selected = left[leftIndex] <= right[rightIndex] ? left[leftIndex++] : right[rightIndex++];
+                    values[position] = selected;
+                    addStep(values, [position], `Merge ${selected} into position ${position + 1}.`);
+                    position += 1;
+                }
+                while (leftIndex < left.length) {
+                    values[position] = left[leftIndex++];
+                    addStep(values, [position], `Copy ${values[position]} into position ${position + 1}.`);
+                    position += 1;
+                }
+                while (rightIndex < right.length) {
+                    values[position] = right[rightIndex++];
+                    addStep(values, [position], `Copy ${values[position]} into position ${position + 1}.`);
+                    position += 1;
+                }
+            }
+            splitAndMerge(0, values.length);
+        }
+
+        function quickSort(values) {
+            function partition(low, high) {
+                const pivot = values[high];
+                let boundary = low;
+                for (let index = low; index < high; index += 1) {
+                    addStep(values, [index, high], `Compare ${values[index]} with pivot ${pivot}.`);
+                    if (values[index] < pivot) {
+                        if (boundary !== index) {
+                            [values[boundary], values[index]] = [values[index], values[boundary]];
+                            addStep(values, [boundary, index], `Move ${values[boundary]} before the pivot.`);
+                        }
+                        boundary += 1;
+                    }
+                }
+                if (boundary !== high) {
+                    [values[boundary], values[high]] = [values[high], values[boundary]];
+                    addStep(values, [boundary, high], `Place pivot ${values[boundary]} in its sorted position.`);
+                }
+                return boundary;
+            }
+
+            function sortRange(low, high) {
+                if (low >= high) return;
+                const pivotIndex = partition(low, high);
+                sortRange(low, pivotIndex - 1);
+                sortRange(pivotIndex + 1, high);
+            }
+            sortRange(0, values.length - 1);
+        }
+
+        const sortingAlgorithms = {
+            bubble: bubbleSort,
+            selection: selectionSort,
+            insertion: insertionSort,
+            merge: mergeSort,
+            quick: quickSort
+        };
+
+        function renderStep(index) {
+            const step = steps[index];
+            chart.replaceChildren();
+            const maximum = Math.max(...step.values.map(value => Math.abs(value)), 1);
+
+            step.values.forEach((value, position) => {
+                const bar = document.createElement('div');
+                bar.className = `sorter-bar${step.indices.includes(position) ? ' is-active' : ''}`;
+                bar.setAttribute('role', 'listitem');
+                bar.setAttribute('aria-label', `Position ${position + 1}: ${value}${step.indices.includes(position) ? ', active' : ''}`);
+
+                const fill = document.createElement('span');
+                fill.className = 'sorter-bar-fill';
+                fill.style.height = `${Math.max(8, Math.abs(value) / maximum * 150)}px`;
+                fill.setAttribute('aria-hidden', 'true');
+
+                const label = document.createElement('span');
+                label.className = 'sorter-bar-value';
+                label.textContent = String(value);
+
+                bar.append(fill, label);
+                chart.append(bar);
+            });
+
+            stepCount.textContent = `Step ${index + 1} of ${steps.length}`;
+            status.textContent = index === steps.length - 1
+                ? `Sorted: ${step.values.join(', ')}`
+                : step.message;
+            previousButton.disabled = index === 0;
+            nextButton.disabled = index === steps.length - 1;
+            autoPlayButton.disabled = index === steps.length - 1;
+            if (index === steps.length - 1) stopAutoPlay();
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayTimer !== null) {
+                clearInterval(autoPlayTimer);
+                autoPlayTimer = null;
+            }
+            autoPlayButton.textContent = 'Auto Play';
+            autoPlayButton.setAttribute('aria-pressed', 'false');
+        }
+
+        function toggleAutoPlay() {
+            if (autoPlayTimer !== null) {
+                stopAutoPlay();
+                return;
+            }
+            if (steps.length === 0 || currentStep >= steps.length - 1) return;
+
+            autoPlayButton.textContent = 'Pause';
+            autoPlayButton.setAttribute('aria-pressed', 'true');
+            autoPlayTimer = setInterval(() => {
+                if (currentStep >= steps.length - 1) {
+                    stopAutoPlay();
+                    return;
+                }
+                renderStep(++currentStep);
+            }, 100);
+        }
+
+        function visualizeSort() {
+            stopAutoPlay();
+            try {
+                const values = parseNumbers();
+                steps = [];
+                currentStep = 0;
+                addStep(values, [], 'Starting array.');
+                sortingAlgorithms[algorithmInput.value](values);
+                addStep(values, [], 'Sorting complete.');
+                renderStep(currentStep);
+            } catch (error) {
+                status.textContent = error.message;
+            }
+        }
+
+        function resetVisualizer() {
+            stopAutoPlay();
+            numbersInput.value = exampleNumbers;
+            steps = [];
+            currentStep = -1;
+            chart.replaceChildren();
+            stepCount.textContent = 'Step 0 of 0';
+            status.textContent = 'The example numbers are ready. Choose an algorithm and select Visualize sort.';
+            previousButton.disabled = true;
+            nextButton.disabled = true;
+            autoPlayButton.disabled = true;
+        }
+
+        runButton.addEventListener('click', visualizeSort);
+        resetButton.addEventListener('click', resetVisualizer);
+        previousButton.addEventListener('click', () => {
+            stopAutoPlay();
+            if (currentStep > 0) renderStep(--currentStep);
+        });
+        nextButton.addEventListener('click', () => {
+            stopAutoPlay();
+            if (currentStep < steps.length - 1) renderStep(++currentStep);
+        });
+        autoPlayButton.addEventListener('click', toggleAutoPlay);
+        numbersInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter') visualizeSort();
+        });
+    </script>
+</body>
+</html>
